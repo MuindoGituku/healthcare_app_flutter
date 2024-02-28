@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class PatientRecordsScreen extends StatefulWidget {
-  const PatientRecordsScreen({super.key});
+  const PatientRecordsScreen({super.key, required this.patientID});
+
+  final String patientID;
 
   @override
   State<PatientRecordsScreen> createState() => _PatientRecordsScreenState();
