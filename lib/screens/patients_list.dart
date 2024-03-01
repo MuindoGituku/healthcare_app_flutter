@@ -84,7 +84,7 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
         ],
       ),
       body: isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : SingleChildScrollView(

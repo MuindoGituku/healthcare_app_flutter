@@ -38,15 +38,15 @@ class CustomPatientCard extends StatelessWidget {
                 children: [
                   Text(
                     patientName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Text(
                     department,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w300,
                       color: Colors.blueAccent,
@@ -64,8 +64,8 @@ class CustomPatientCard extends StatelessWidget {
                     color: iscritical ? Colors.redAccent : Colors.blueAccent,
                     borderRadius: BorderRadius.circular(5),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
+                  child: const Padding(
+                    padding: EdgeInsets.all(10),
                     child: Text(
                       "View Details",
                       style: TextStyle(

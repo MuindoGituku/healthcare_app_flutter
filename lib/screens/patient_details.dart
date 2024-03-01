@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:healthcare_app_flutter/models/patient.dart';
 import 'package:healthcare_app_flutter/forms/add_test.dart';
-import 'package:healthcare_app_flutter/forms/update_test.dart';
 import 'package:healthcare_app_flutter/forms/update_patient.dart';
 import 'package:healthcare_app_flutter/services/database_manager.dart';
 
@@ -30,8 +29,8 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
       future: patient,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            body: const Center(
+          return const Scaffold(
+            body: Center(
               child: CircularProgressIndicator(),
             ),
           );
@@ -52,25 +51,25 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
             ),
             body: SafeArea(
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Patient details
                     Container(
-                      margin: EdgeInsets.only(bottom: 20.0),
+                      margin: const EdgeInsets.only(bottom: 20.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "${snapshot.data!.firstName} ${snapshot.data!.lastName}",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          Text('Status: Normal'),
-                          Text('Date of Birth: 01/01/1990'),
-                          Text('Address: 941 Progress Avenune, Scarborough ON'),
-                          Text('Department: Cardiology'),
-                          Text('Doctor: Luke White'),
+                          const Text('Status: Normal'),
+                          const Text('Date of Birth: 01/01/1990'),
+                          const Text('Address: 941 Progress Avenune, Scarborough ON'),
+                          const Text('Department: Cardiology'),
+                          const Text('Doctor: Luke White'),
                         ],
                       ),
                     ),
@@ -81,45 +80,43 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                       children: [
                         IconButton(
                           onPressed: () {},
-                          icon: Icon(Icons.refresh),
+                          icon: const Icon(Icons.refresh),
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blueAccent,
-                              padding: EdgeInsets.symmetric(
+                              foregroundColor: Colors.white, backgroundColor: Colors.blueAccent,
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
-                              onPrimary: Colors.white,
                               textStyle:
-                                  TextStyle(fontWeight: FontWeight.bold)),
+                                  const TextStyle(fontWeight: FontWeight.bold)),
                           onPressed: () {
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
                               return const UpdatePatientProfileScreen();
                             }));
                           },
-                          child: Text('Update Patient'),
+                          child: const Text('Update Patient'),
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent,
-                              padding: EdgeInsets.symmetric(
+                              foregroundColor: Colors.white, backgroundColor: Colors.redAccent,
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
-                              onPrimary: Colors.white,
                               textStyle:
-                                  TextStyle(fontWeight: FontWeight.bold)),
+                                  const TextStyle(fontWeight: FontWeight.bold)),
                           onPressed: () {},
-                          child: Text('Delete Patient'),
+                          child: const Text('Delete Patient'),
                         ),
                       ],
                     ),
 
                     // Test Records title and Add Test Button
                     Container(
-                      margin: EdgeInsets.symmetric(vertical: 10.0),
+                      margin: const EdgeInsets.symmetric(vertical: 10.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             'Test Records',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 18.0),
@@ -131,7 +128,7 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                                 return const AddTestToPatientScreen();
                               }));
                             },
-                            icon: Icon(Icons.add),
+                            icon: const Icon(Icons.add),
                           ),
                         ],
                       ),
@@ -141,15 +138,15 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                     Column(
                       children: [
                         Container(
-                          margin: EdgeInsets.only(bottom: 15.0),
-                          padding: EdgeInsets.all(10.0),
+                          margin: const EdgeInsets.only(bottom: 15.0),
+                          padding: const EdgeInsets.all(10.0),
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.black),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
+                              const Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
@@ -164,21 +161,21 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                               ),
                               IconButton(
                                 onPressed: () {},
-                                icon: Icon(Icons.delete),
+                                icon: const Icon(Icons.delete),
                               ),
                             ],
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.only(bottom: 15.0),
-                          padding: EdgeInsets.all(10.0),
+                          margin: const EdgeInsets.only(bottom: 15.0),
+                          padding: const EdgeInsets.all(10.0),
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.black),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
+                              const Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
@@ -193,7 +190,7 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                               ),
                               IconButton(
                                 onPressed: () {},
-                                icon: Icon(Icons.delete),
+                                icon: const Icon(Icons.delete),
                               ),
                             ],
                           ),
@@ -206,8 +203,8 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
             ),
           );
         } else {
-          return Scaffold(
-            body: const Center(
+          return const Scaffold(
+            body: Center(
               child: Text(
                 'No patient data available',
               ),
