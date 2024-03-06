@@ -20,12 +20,23 @@ class Test {
   factory Test.fromJson(Map<String, dynamic> json) {
     return Test(
       id: json['_id'] as String,
-      patientID: json['patientID'] as String,
+      patientID: json['patient_id'] as String,
       date: json['date'] as String,
-      nurseName: json['nurseName'] as String,
+      nurseName: json['nurse_name'] as String,
       type: json['type'] as String,
       category: json['category'] as String,
       readings: json['readings'] as String,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'patient_id': patientID,
+      'date': date,
+      'nurse_name': nurseName,
+      'type': type,
+      'category': category,
+      'readings': readings,
+    };
   }
 }
