@@ -40,16 +40,16 @@ class CustomPatientCard extends StatelessWidget {
                     patientName,
                     style: const TextStyle(
                       fontSize: 20,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                   const SizedBox(height: 5),
                   Text(
                     department,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.blueAccent,
+                      fontWeight: FontWeight.w400,
+                      color: iscritical ? Colors.redAccent : Colors.blueAccent,
                     ),
                   ),
                   Text(

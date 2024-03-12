@@ -1,6 +1,9 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:healthcare_app_flutter/widgets/back_arrow.dart';
+import 'package:healthcare_app_flutter/models/patient.dart';
+import 'package:healthcare_app_flutter/services/database_manager.dart';
+import 'package:healthcare_app_flutter/widgets/loading_widget.dart';
+import 'package:intl/intl.dart';
 import 'package:svg_flutter/svg.dart';
 
 class AddNewPatientScreen extends StatefulWidget {
@@ -12,13 +15,34 @@ class AddNewPatientScreen extends StatefulWidget {
 
 class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
   final _formKey = GlobalKey<FormState>();
+  final PatientsDatabaseManager _databaseManager = PatientsDatabaseManager();
 
-  String firstName = "";
-  String lastName = "";
-  String homeAddress = "";
+  TextEditingController firstName = TextEditingController();
+  TextEditingController lastName = TextEditingController();
+  TextEditingController homeAddress = TextEditingController();
   DateTime dateOfBirth = DateTime.now();
+  TextEditingController dateOfBirthText = TextEditingController();
   String selectedDoctor = "";
   String selectedDepartment = "";
+
+  Future pickDate({required BuildContext context}) async {
+    DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: dateOfBirth,
+      firstDate: DateTime(1900, 1),
+      lastDate: DateTime.now(),
+      initialDatePickerMode: DatePickerMode.year,
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+    );
+
+    if (selectedDate == null) return;
+    setState(() {
+      dateOfBirth = selectedDate;
+      dateOfBirthText.text = DateFormat.yMMMMEEEEd().format(selectedDate);
+    });
+  }
+
+  bool isUploadingPatient = false;
 
   List<String> doctorOptions = [
     'Megan Garner',
@@ -44,20 +68,15 @@ class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            const CustomBackArrow(),
-            const SizedBox(width: 15),
-            Text(
-              "Add New Patient".toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w400,
-                fontSize: 18,
-              ),
-            ),
-          ],
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        title: Text(
+          "Add New Patient".toUpperCase(),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w400,
+            fontSize: 18,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -66,16 +85,20 @@ class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
           key: _formKey,
           child: Column(
             children: [
+              const Text(
+                "Provide the details to build the profile for a new patient. Note that all fields are required.",
+                style: TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+              const SizedBox(height: 15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.45,
                     child: TextFormField(
-                      initialValue: firstName,
-                      onChanged: (value) {
-                        setState(() => firstName = value);
-                      },
+                      controller: firstName,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Enter your first name!!";
@@ -97,10 +120,7 @@ class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.45,
                     child: TextFormField(
-                      initialValue: lastName,
-                      onChanged: (value) {
-                        setState(() => lastName = value);
-                      },
+                      controller: lastName,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Enter your last name!!";
@@ -123,10 +143,7 @@ class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
               ),
               const SizedBox(height: 20),
               TextFormField(
-                initialValue: homeAddress,
-                onChanged: (value) {
-                  setState(() => homeAddress = value);
-                },
+                controller: homeAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Enter your home address!!";
@@ -146,16 +163,18 @@ class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
               ),
               const SizedBox(height: 20),
               GestureDetector(
-                onTap: () {},
+                onTap: () => pickDate(context: context),
                 child: TextFormField(
-                  initialValue: homeAddress,
+                  controller: dateOfBirthText,
                   enabled: false,
                   style: const TextStyle(
                     fontSize: 12,
+                    color: Colors.black,
                   ),
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: "Date of Birth",
+                    labelStyle: const TextStyle(color: Colors.black),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -169,6 +188,9 @@ class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
               DropdownSearch(
                 items: doctorOptions,
                 selectedItem: selectedDoctor,
+                onChanged: (value) => setState(() {
+                  selectedDoctor = value!;
+                }),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Select the attending doctor!!";
@@ -188,6 +210,9 @@ class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
               DropdownSearch(
                 items: departmentOptions,
                 selectedItem: selectedDepartment,
+                onChanged: (value) => setState(() {
+                  selectedDepartment = value!;
+                }),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Select the receiving department!!";
@@ -204,37 +229,55 @@ class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
                 ),
               ),
               const SizedBox(height: 25),
-              GestureDetector(
-                onTap: () {
-                  if (_formKey.currentState!.validate()) {}
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(17),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          "assets/images/cloud_upload.svg",
-                          width: 20,
-                          height: 20,
-                          color: Colors.white,
+              isUploadingPatient
+                  ? const LoadingWidget(
+                      loadingAnimationText:
+                          "Uploading new patient to our hospital records...",
+                    )
+                  : GestureDetector(
+                      onTap: () async {
+                        if (_formKey.currentState!.validate()) {
+                          final newPatient = Patient(
+                            firstName: firstName.text,
+                            lastName: lastName.text,
+                            address: homeAddress.text,
+                            dateOfBirth: dateOfBirthText.text,
+                            department: selectedDepartment,
+                            doctor: selectedDoctor,
+                            status: "Normal",
+                          );
+                          await _databaseManager
+                              .addPatient(newPatient)
+                              .then((value) => Navigator.pop(context));
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        const SizedBox(width: 10),
-                        const Text(
-                          "Upload New Patient",
-                          style: TextStyle(color: Colors.white),
+                        child: Padding(
+                          padding: const EdgeInsets.all(17),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                "assets/images/cloud_upload.svg",
+                                width: 20,
+                                height: 20,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                "Upload New Patient",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
+                      ),
+                    )
             ],
           ),
         ),

@@ -1,6 +1,5 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:healthcare_app_flutter/widgets/back_arrow.dart';
 import 'package:svg_flutter/svg.dart';
 
 class UpdateTestScreen extends StatefulWidget {
@@ -34,20 +33,15 @@ class _UpdateTestScreenState extends State<UpdateTestScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            const CustomBackArrow(),
-            const SizedBox(width: 15),
-            Text(
-              "Update Selected Test".toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w400,
-                fontSize: 18,
-              ),
-            ),
-          ],
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        title: Text(
+          "Update Test Details".toUpperCase(),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w400,
+            fontSize: 18,
+          ),
         ),
       ),
       body: SingleChildScrollView(
