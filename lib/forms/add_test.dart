@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:svg_flutter/svg.dart';
 
 class AddTestToPatientScreen extends StatefulWidget {
-  const AddTestToPatientScreen({super.key});
+  const AddTestToPatientScreen({super.key, required this.patientID});
+
+  final String patientID;
 
   @override
   State<AddTestToPatientScreen> createState() => _AddTestToPatientScreenState();

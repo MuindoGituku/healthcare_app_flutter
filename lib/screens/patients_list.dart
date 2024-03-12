@@ -90,7 +90,7 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
                       color: Colors.blueAccent,
                     ),
                   ),
-                )
+                ),
               ],
             ),
             body: RefreshIndicator(

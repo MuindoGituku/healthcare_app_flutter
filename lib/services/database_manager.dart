@@ -11,6 +11,9 @@ class PatientsDatabaseManager {
   final _patientsStreamController = StreamController<List<Patient>>.broadcast();
   Stream<List<Patient>> get patientsStream => _patientsStreamController.stream;
 
+  final _patientStreamController = StreamController<Patient>.broadcast();
+  Stream<Patient> get patientStream => _patientStreamController.stream;
+
   final _testsStreamController = StreamController<List<Test>>.broadcast();
   Stream<List<Test>> get testsStream => _testsStreamController.stream;
 
@@ -63,12 +66,13 @@ class PatientsDatabaseManager {
   }
 
   //Fetch patient by ID
-  Future<Patient> getPatientById(String id) async {
+  Future<void> getPatientById(String id) async {
     final response = await http.get(Uri.parse('$_baseUrl/patients/$id'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> body = jsonDecode(response.body);
-      return Patient.fromJson(body);
+      Patient patient = Patient.fromJson(body);
+      _patientStreamController.add(patient);
     } else {
       throw Exception('Failed to load patient');
     }
@@ -175,6 +179,10 @@ class PatientsDatabaseManager {
 
   void patientsDispose() {
     _patientsStreamController.close();
+  }
+
+  void patientDispose() {
+    _patientStreamController.close();
   }
 
   void testsDispose() {

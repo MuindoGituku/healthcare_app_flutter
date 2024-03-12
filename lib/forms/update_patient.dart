@@ -1,9 +1,12 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:healthcare_app_flutter/models/patient.dart';
 import 'package:svg_flutter/svg.dart';
 
 class UpdatePatientProfileScreen extends StatefulWidget {
-  const UpdatePatientProfileScreen({super.key});
+  const UpdatePatientProfileScreen({super.key, required this.patient});
+
+  final Patient patient;
 
   @override
   State<UpdatePatientProfileScreen> createState() =>
@@ -39,6 +42,12 @@ class _UpdatePatientProfileScreenState
     'Oncology',
     'Orthopedics',
   ];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

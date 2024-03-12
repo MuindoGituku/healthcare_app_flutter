@@ -1,9 +1,12 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:healthcare_app_flutter/models/test.dart';
 import 'package:svg_flutter/svg.dart';
 
 class UpdateTestScreen extends StatefulWidget {
-  const UpdateTestScreen({super.key});
+  const UpdateTestScreen({super.key, required this.test});
+
+  final Test test;
 
   @override
   State<UpdateTestScreen> createState() => _UpdateTestScreenState();
