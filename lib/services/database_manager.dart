@@ -3,10 +3,13 @@ import 'dart:convert';
 
 import 'package:healthcare_app_flutter/models/patient.dart';
 import 'package:healthcare_app_flutter/models/test.dart';
+import 'package:healthcare_app_flutter/services/api_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:rxdart/rxdart.dart';
 
 class PatientsDatabaseManager {
   final String _baseUrl = "https://nodejs-healthcare-api-server.onrender.com";
+  final ApiService _apiService = ApiService();
 
   final _patientsStreamController = StreamController<List<Patient>>.broadcast();
   Stream<List<Patient>> get patientsStream => _patientsStreamController.stream;
@@ -19,113 +22,86 @@ class PatientsDatabaseManager {
 
   // Fetch all patients and add them to the stream
   Future<void> fetchAllPatients() async {
-    final response = await http.get(Uri.parse('$_baseUrl/patients'));
+    final result = await _apiService.getRequest('patients');
 
-    if (response.statusCode == 200) {
-      List<dynamic> body = jsonDecode(response.body);
-      List<Patient> patients = body
-          .map((dynamic item) => Patient.fromJson(item as Map<String, dynamic>))
-          .toList();
-      _patientsStreamController.add(patients); // Add patients to the stream
+    if (result.isSuccess) {
+      List<Patient> patients =
+          (result.data as List).map((item) => Patient.fromJson(item)).toList();
+      _patientsStreamController.add(patients);
     } else {
-      throw Exception('Failed to load patients');
+      _patientsStreamController.addError(result.error!);
     }
   }
 
   // Fetch all critical patients
   Future<void> getAllCriticalPatients() async {
-    final response = await http.get(Uri.parse('$_baseUrl/patients/critical'));
+    final result = await _apiService.getRequest('patients/critical');
 
-    if (response.statusCode == 200) {
-      List<dynamic> body = jsonDecode(response.body);
-      List<Patient> patients = body
-          .map((dynamic item) => Patient.fromJson(item as Map<String, dynamic>))
-          .toList();
-      _patientsStreamController
-          .add(patients); // Add critical patients to the stream
+    if (result.isSuccess) {
+      List<Patient> patients =
+          (result.data as List).map((item) => Patient.fromJson(item)).toList();
+      _patientsStreamController.add(patients);
     } else {
-      throw Exception('Failed to load patients');
+      _patientsStreamController.addError(result.error!);
     }
   }
 
   // Search patients by name
   Future<void> searchPatientsByName(String searchTerm) async {
-    final response =
-        await http.get(Uri.parse('$_baseUrl/patients/search/$searchTerm'));
+    final result = await _apiService.getRequest('patients/search/$searchTerm');
 
-    if (response.statusCode == 200) {
-      List<dynamic> body = jsonDecode(response.body);
-      List<Patient> patients = body
-          .map((dynamic item) => Patient.fromJson(item as Map<String, dynamic>))
-          .toList();
-      _patientsStreamController
-          .add(patients); // Add matching patients to the stream
+    if (result.isSuccess) {
+      List<Patient> patients =
+          (result.data as List).map((item) => Patient.fromJson(item)).toList();
+      _patientsStreamController.add(patients);
     } else {
-      throw Exception('Failed to load patients');
+      _patientsStreamController.addError(result.error!);
     }
   }
 
   //Fetch patient by ID
   Future<void> getPatientById(String id) async {
-    final response = await http.get(Uri.parse('$_baseUrl/patients/$id'));
+    final result = await _apiService.getRequest('patients/$id');
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> body = jsonDecode(response.body);
-      Patient patient = Patient.fromJson(body);
+    if (result.isSuccess) {
+      Patient patient = Patient.fromJson(result.data);
       _patientStreamController.add(patient);
     } else {
-      throw Exception('Failed to load patient');
+      _patientStreamController.addError(result.error!);
     }
   }
 
   // Add new patient and refresh the patients stream
   Future<void> addPatient(Patient patient) async {
-    final response = await http.post(
-      Uri.parse('$_baseUrl/patients'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(patient.toJson()),
-    );
-
-    if (response.statusCode == 201) {
-      await fetchAllPatients(); // Refresh the patients stream
+    final result = await _apiService.postRequest('patients', patient.toJson());
+    if (result.isSuccess) {
+      await fetchAllPatients();
     } else {
-      throw Exception(
-          'Failed to add patient. Status code: ${response.statusCode}');
+      print('Error adding patient: ${result.error}');
     }
   }
 
-  // Update selected patient and refresh the patients stream
+// Update selected patient and refresh the patients stream
   Future<void> updatePatient(Patient patient) async {
-    final response = await http.put(
-      Uri.parse('$_baseUrl/patients/${patient.id}'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(patient.toJson()),
-    );
-
-    if (response.statusCode == 200) {
-      await fetchAllPatients(); // Refresh the patients stream
+    final result = await _apiService.putRequest(
+        'patients/${patient.id}', patient.toJson());
+    if (result.isSuccess) {
+      await getPatientById(patient.id);
     } else {
-      throw Exception(
-          'Failed to update patient. Status code: ${response.statusCode}');
+      print('Error updating patient: ${result.error}');
     }
   }
 
-  //fetch all tests for a patient
+  // Fetch all tests for a patient
   Future<void> getAllTestsForPatient(String id) async {
-    final response = await http.get(Uri.parse('$_baseUrl/patients/$id/tests'));
-
-    if (response.statusCode == 200) {
-      List<dynamic> body = jsonDecode(response.body);
-      List<Test> tests = body
-          .map((dynamic item) => Test.fromJson(item as Map<String, dynamic>))
-          .toList();
-      _testsStreamController.add(tests); // Add tests to the stream
+    final result = await _apiService.getRequest('patients/$id/tests');
+    if (result.isSuccess) {
+      List<dynamic> body = result.data;
+      List<Test> tests =
+          body.map((dynamic item) => Test.fromJson(item)).toList();
+      _testsStreamController.add(tests);
     } else {
-      throw Exception('Failed to load tests for this patient');
+      print('Error loading tests for patient $id: ${result.error}');
     }
   }
 
@@ -141,51 +117,37 @@ class PatientsDatabaseManager {
     }
   }
 
-  //add new test to patient
+  // Add new test to a patient
   Future<void> addTestToPatient(Test test) async {
-    final response = await http.post(
-      Uri.parse('$_baseUrl/patients/${test.patientID}/tests'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(test.toJson()),
+    final result = await _apiService.postRequest(
+      'patients/${test.patientID}/tests',
+      test.toJson(),
     );
 
-    if (response.statusCode == 201) {
+    if (result.isSuccess) {
       await getAllTestsForPatient(test.patientID);
     } else {
-      throw Exception(
-          'Failed to add test to patient. Status code: ${response.statusCode}');
+      print('Failed to add test to patient. Error: ${result.error}');
     }
   }
 
-  //update selected test
+  // Update selected test
   Future<void> updateTest(Test test) async {
-    final response = await http.put(
-      Uri.parse('$_baseUrl/patients/${test.patientID}/tests/${test.id}'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(test.toJson()),
+    final result = await _apiService.putRequest(
+      'patients/${test.patientID}/tests/${test.id}',
+      test.toJson(),
     );
 
-    if (response.statusCode == 201) {
+    if (result.isSuccess) {
       await getAllTestsForPatient(test.patientID);
     } else {
-      throw Exception(
-          'Failed to update test. Status code: ${response.statusCode}');
+      print('Failed to update test. Error: ${result.error}');
     }
   }
 
-  void patientsDispose() {
+  void dispose() {
     _patientsStreamController.close();
-  }
-
-  void patientDispose() {
     _patientStreamController.close();
-  }
-
-  void testsDispose() {
     _testsStreamController.close();
   }
 }

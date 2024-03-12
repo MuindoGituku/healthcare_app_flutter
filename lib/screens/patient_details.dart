@@ -4,8 +4,11 @@ import 'package:healthcare_app_flutter/models/patient.dart';
 import 'package:healthcare_app_flutter/forms/add_test.dart';
 import 'package:healthcare_app_flutter/forms/update_patient.dart';
 import 'package:healthcare_app_flutter/services/database_manager.dart';
+import 'package:healthcare_app_flutter/services/patient_details_tests_manager.dart';
 import 'package:healthcare_app_flutter/widgets/error_screen.dart';
 import 'package:healthcare_app_flutter/widgets/loading_screen.dart';
+import 'package:healthcare_app_flutter/widgets/patient_profile_card.dart';
+import 'package:healthcare_app_flutter/widgets/test_card.dart';
 import 'package:svg_flutter/svg.dart';
 
 class PatientRecordsScreen extends StatefulWidget {
@@ -19,25 +22,24 @@ class PatientRecordsScreen extends StatefulWidget {
 
 class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
   final PatientsDatabaseManager _databaseManager = PatientsDatabaseManager();
+  late final PatientDetailsManager _patientDetailsManager;
 
   @override
   void initState() {
     super.initState();
-    _databaseManager.getPatientById(widget.patientID).then(
-        (value) => _databaseManager.getAllTestsForPatient(widget.patientID));
+    _patientDetailsManager = PatientDetailsManager(_databaseManager);
   }
 
   @override
   void dispose() {
-    _databaseManager.patientDispose();
-    _databaseManager.testsDispose();
+    _databaseManager.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: _databaseManager.patientStream,
+      stream: _patientDetailsManager.getPatientAndTests(widget.patientID),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const LoadingFullScreen(
@@ -57,7 +59,7 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
               onPressed: () {
                 Navigator.push(context, CupertinoPageRoute(builder: (context) {
                   return AddTestToPatientScreen(
-                    patientID: snapshot.data!.id,
+                    patientID: snapshot.data!.patient.id,
                   );
                 }));
               },
@@ -66,7 +68,7 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                 width: 20,
                 color: Colors.white,
               ),
-              label: Text(
+              label: const Text(
                 "Add New Test",
                 style: TextStyle(),
               ),
@@ -76,7 +78,7 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
               foregroundColor: Colors.white,
               centerTitle: true,
               title: Text(
-                "${snapshot.data!.firstName} ${snapshot.data!.lastName}"
+                "${snapshot.data!.patient.firstName} ${snapshot.data!.patient.lastName}"
                     .toUpperCase(),
                 style: const TextStyle(
                   color: Colors.white,
@@ -101,7 +103,7 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
                               return UpdatePatientProfileScreen(
-                                patient: snapshot.data!,
+                                patient: snapshot.data!.patient,
                               );
                             }));
                           },
@@ -113,8 +115,8 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                                 "assets/images/person_edit.svg",
                                 width: 20,
                               ),
-                              SizedBox(width: 10),
-                              Text(
+                              const SizedBox(width: 10),
+                              const Text(
                                 "Update Patient Profile",
                                 style: TextStyle(),
                               ),
@@ -126,7 +128,7 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
                               return AddTestToPatientScreen(
-                                patientID: snapshot.data!.id,
+                                patientID: snapshot.data!.patient.id,
                               );
                             }));
                           },
@@ -138,15 +140,15 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                                 "assets/images/note_add.svg",
                                 width: 20,
                               ),
-                              SizedBox(width: 10),
-                              Text(
+                              const SizedBox(width: 10),
+                              const Text(
                                 "Add Test to Patient",
                                 style: TextStyle(),
                               ),
                             ],
                           ),
                         ),
-                        PopupMenuItem(child: PopupMenuDivider()),
+                        const PopupMenuItem(child: PopupMenuDivider()),
                         PopupMenuItem(
                           onTap: () {},
                           child: Row(
@@ -158,8 +160,8 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                                 width: 20,
                                 color: Colors.redAccent,
                               ),
-                              SizedBox(width: 10),
-                              Text(
+                              const SizedBox(width: 10),
+                              const Text(
                                 "Delete Patient Profile",
                                 style: TextStyle(
                                   color: Colors.redAccent,
@@ -174,120 +176,48 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                 ),
               ],
             ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Patient details
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${snapshot.data!.firstName} ${snapshot.data!.lastName}",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const Text('Status: Normal'),
-                        const Text('Date of Birth: 01/01/1990'),
-                        const Text(
-                            'Address: 941 Progress Avenune, Scarborough ON'),
-                        const Text('Department: Cardiology'),
-                        const Text('Doctor: Luke White'),
-                      ],
-                    ),
-                  ),
-
-                  // Test Records title and Add Test Button
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Test Records',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18.0),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.push(context,
-                                CupertinoPageRoute(builder: (context) {
-                              return AddTestToPatientScreen(
-                                patientID: snapshot.data!.id,
-                              );
-                            }));
-                          },
-                          icon: const Icon(Icons.add),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // List of Tests
-                  Column(
+            body: ListView(
+              padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
+              children: [
+                PatientProfileCard(patient: snapshot.data!.patient),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 15.0),
-                        padding: const EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Category: Blood Oxygen Level',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                Text('Nurse: Megan Jenny'),
-                                Text('Date Tested: 02/01/2024'),
-                                Text('Reading: 94'),
-                              ],
-                            ),
-                            IconButton(
-                              onPressed: () {},
-                              icon: const Icon(Icons.delete),
-                            ),
-                          ],
-                        ),
+                      const Text(
+                        'Test Records',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18.0),
                       ),
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 15.0),
-                        padding: const EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Category: Blood Pressure',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                Text('Nurse: Megan Jennigs'),
-                                Text('Date Tested: 01/20/2024'),
-                                Text('Reading: 79'),
-                              ],
-                            ),
-                            IconButton(
-                              onPressed: () {},
-                              icon: const Icon(Icons.delete),
-                            ),
-                          ],
-                        ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              CupertinoPageRoute(builder: (context) {
+                            return AddTestToPatientScreen(
+                              patientID: snapshot.data!.patient.id,
+                            );
+                          }));
+                        },
+                        icon: const Icon(Icons.add),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                snapshot.data!.tests.isEmpty
+                    ? Center(
+                        child: Text("No tests recorded!!"),
+                      )
+                    : ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          return SingleTestCard(
+                            test: snapshot.data!.tests[index],
+                          );
+                        },
+                      ),
+              ],
             ),
           );
         } else {

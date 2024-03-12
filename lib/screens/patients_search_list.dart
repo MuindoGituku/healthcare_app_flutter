@@ -27,7 +27,7 @@ class _PatientsSearchListScreenState extends State<PatientsSearchListScreen> {
 
   @override
   void dispose() {
-    _databaseManager.patientsDispose();
+    _databaseManager.dispose();
     super.dispose();
   }
 
