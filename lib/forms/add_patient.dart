@@ -38,7 +38,7 @@ class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
     if (selectedDate == null) return;
     setState(() {
       dateOfBirth = selectedDate;
-      dateOfBirthText.text = DateFormat.yMMMMEEEEd().format(selectedDate);
+      dateOfBirthText.text = DateFormat.yMMMEd().format(selectedDate);
     });
   }
 

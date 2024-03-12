@@ -1,5 +1,8 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:healthcare_app_flutter/models/test.dart';
+import 'package:healthcare_app_flutter/services/database_manager.dart';
+import 'package:intl/intl.dart';
 import 'package:svg_flutter/svg.dart';
 
 class AddTestToPatientScreen extends StatefulWidget {
@@ -13,12 +16,33 @@ class AddTestToPatientScreen extends StatefulWidget {
 
 class _AddTestToPatientScreenState extends State<AddTestToPatientScreen> {
   final _formKey = GlobalKey<FormState>();
+  final PatientsDatabaseManager _databaseManager = PatientsDatabaseManager();
 
-  String nurseName = "";
-  String testReading = "";
+  TextEditingController nurseName = TextEditingController();
+  TextEditingController testReading = TextEditingController();
   DateTime testDate = DateTime.now();
+  TextEditingController testDateString = TextEditingController();
   String selectedType = "";
   String selectedCategory = "";
+
+  Future pickDate({required BuildContext context}) async {
+    DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: testDate,
+      firstDate: DateTime(1900, 1),
+      lastDate: DateTime.now(),
+      initialDatePickerMode: DatePickerMode.year,
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+    );
+
+    if (selectedDate == null) return;
+    setState(() {
+      testDate = selectedDate;
+      testDateString.text = DateFormat.yMMMEd().format(selectedDate);
+    });
+  }
+
+  bool isUploadingPatient = false;
 
   List<String> typeOptions = [
     'Test',
@@ -53,10 +77,7 @@ class _AddTestToPatientScreenState extends State<AddTestToPatientScreen> {
           child: Column(
             children: [
               TextFormField(
-                initialValue: nurseName,
-                onChanged: (value) {
-                  setState(() => nurseName = value);
-                },
+                controller: nurseName,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Enter the name of the attending nurse!!";
@@ -76,16 +97,18 @@ class _AddTestToPatientScreenState extends State<AddTestToPatientScreen> {
               ),
               const SizedBox(height: 20),
               GestureDetector(
-                onTap: () {},
+                onTap: () => pickDate(context: context),
                 child: TextFormField(
-                  initialValue: nurseName,
+                  controller: testDateString,
                   enabled: false,
                   style: const TextStyle(
                     fontSize: 12,
+                    color: Colors.black,
                   ),
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: "Test Date",
+                    labelStyle: const TextStyle(color: Colors.black),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -99,6 +122,11 @@ class _AddTestToPatientScreenState extends State<AddTestToPatientScreen> {
               DropdownSearch(
                 items: typeOptions,
                 selectedItem: selectedType,
+                onChanged: (value) {
+                  setState(() {
+                    selectedType = value!;
+                  });
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Select the test type!!";
@@ -118,6 +146,11 @@ class _AddTestToPatientScreenState extends State<AddTestToPatientScreen> {
               DropdownSearch(
                 items: categoryOptions,
                 selectedItem: selectedCategory,
+                onChanged: (value) {
+                  setState(() {
+                    selectedCategory = value!;
+                  });
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Select the category of test!!";
@@ -135,10 +168,7 @@ class _AddTestToPatientScreenState extends State<AddTestToPatientScreen> {
               ),
               const SizedBox(height: 25),
               TextFormField(
-                initialValue: testReading,
-                onChanged: (value) {
-                  setState(() => testReading = value);
-                },
+                controller: testReading,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Enter the reading from the test!!";
@@ -158,8 +188,20 @@ class _AddTestToPatientScreenState extends State<AddTestToPatientScreen> {
               ),
               const SizedBox(height: 25),
               GestureDetector(
-                onTap: () {
-                  if (_formKey.currentState!.validate()) {}
+                onTap: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final newTest = Test(
+                      patientID: widget.patientID,
+                      date: testDateString.text,
+                      nurseName: nurseName.text,
+                      type: selectedType,
+                      category: selectedCategory,
+                      readings: testReading.text,
+                    );
+                    await _databaseManager
+                        .addTestToPatient(newTest)
+                        .then((value) => Navigator.pop(context));
+                  }
                 },
                 child: Container(
                   decoration: BoxDecoration(

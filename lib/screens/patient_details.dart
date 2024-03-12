@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:healthcare_app_flutter/models/patient.dart';
 import 'package:healthcare_app_flutter/forms/add_test.dart';
 import 'package:healthcare_app_flutter/forms/update_patient.dart';
 import 'package:healthcare_app_flutter/services/database_manager.dart';
@@ -205,11 +204,11 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                   ),
                 ),
                 snapshot.data!.tests.isEmpty
-                    ? Center(
+                    ? const Center(
                         child: Text("No tests recorded!!"),
                       )
                     : ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: snapshot.data!.tests.length,
                         itemBuilder: (context, index) {

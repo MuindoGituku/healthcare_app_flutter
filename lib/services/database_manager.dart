@@ -5,7 +5,6 @@ import 'package:healthcare_app_flutter/models/patient.dart';
 import 'package:healthcare_app_flutter/models/test.dart';
 import 'package:healthcare_app_flutter/services/api_service.dart';
 import 'package:http/http.dart' as http;
-import 'package:rxdart/rxdart.dart';
 
 class PatientsDatabaseManager {
   final String _baseUrl = "https://nodejs-healthcare-api-server.onrender.com";

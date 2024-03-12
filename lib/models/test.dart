@@ -5,10 +5,10 @@ class Test {
   String nurseName;
   String type;
   String category;
-  double readings;
+  String readings;
 
   Test({
-    required this.id,
+    this.id = "",
     required this.patientID,
     required this.date,
     required this.nurseName,
@@ -25,7 +25,7 @@ class Test {
       nurseName: json['nurse_name'] as String,
       type: json['type'] as String,
       category: json['category'] as String,
-      readings: json['readings'] as double,
+      readings: json['readings'].toString(),
     );
   }
 

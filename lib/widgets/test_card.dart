@@ -12,6 +12,7 @@ class SingleTestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.blueAccent),
         borderRadius: BorderRadius.circular(5),
@@ -36,14 +37,14 @@ class SingleTestCard extends StatelessWidget {
                           .titleLarge!
                           .copyWith(fontWeight: FontWeight.w600),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       "Nurse: ${test.nurseName}",
-                      style: TextStyle(),
+                      style: const TextStyle(),
                     ),
                     Text(
                       "Date: ${test.date}",
-                      style: TextStyle(),
+                      style: const TextStyle(),
                     ),
                   ],
                 ),
@@ -55,7 +56,7 @@ class SingleTestCard extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -75,7 +76,7 @@ class SingleTestCard extends StatelessWidget {
                           width: 20,
                           color: Colors.white,
                         ),
-                        label: Text(
+                        label: const Text(
                           "Update Test",
                           style: TextStyle(),
                         ),
@@ -84,10 +85,11 @@ class SingleTestCard extends StatelessWidget {
                         onPressed: () {},
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.blueAccent,
+                          side: const BorderSide(color: Colors.blueAccent),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side: BorderSide(color: Colors.blueAccent),
+                            side: const BorderSide(color: Colors.blueAccent),
                           ),
                         ),
                         icon: SvgPicture.asset(
@@ -95,7 +97,7 @@ class SingleTestCard extends StatelessWidget {
                           width: 20,
                           color: Colors.blueAccent,
                         ),
-                        label: Text(
+                        label: const Text(
                           "Update Test",
                           style: TextStyle(),
                         ),
@@ -116,7 +118,7 @@ class SingleTestCard extends StatelessWidget {
                           width: 20,
                           color: Colors.white,
                         ),
-                        label: Text(
+                        label: const Text(
                           "Delete Test",
                           style: TextStyle(),
                         ),
@@ -126,9 +128,9 @@ class SingleTestCard extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.redAccent,
                           elevation: 0,
+                          side: const BorderSide(color: Colors.redAccent),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side: BorderSide(color: Colors.redAccent),
                           ),
                         ),
                         icon: SvgPicture.asset(
@@ -136,7 +138,7 @@ class SingleTestCard extends StatelessWidget {
                           width: 20,
                           color: Colors.redAccent,
                         ),
-                        label: Text(
+                        label: const Text(
                           "Delete Test",
                           style: TextStyle(),
                         ),
