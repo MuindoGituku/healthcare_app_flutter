@@ -211,9 +211,11 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                     : ListView.builder(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
+                        itemCount: snapshot.data!.tests.length,
                         itemBuilder: (context, index) {
                           return SingleTestCard(
                             test: snapshot.data!.tests[index],
+                            isLatestTest: index == 0,
                           );
                         },
                       ),
