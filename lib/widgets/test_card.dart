@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/models/test.dart';
+import 'package:healthcare_app_flutter/services/database_manager.dart';
 import 'package:svg_flutter/svg.dart';
 
 class SingleTestCard extends StatelessWidget {
@@ -88,7 +89,10 @@ class SingleTestCard extends StatelessWidget {
                   ),
                 if (!isLatestTest)
                   ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () async {
+                      await PatientsDatabaseManager()
+                          .deleteTest(test.patientID, test.id);
+                    },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
                       backgroundColor: Colors.redAccent,

@@ -52,175 +52,188 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
           );
         } else if (snapshot.hasData) {
           return Scaffold(
-            floatingActionButton: FloatingActionButton.extended(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.blueAccent,
-              onPressed: () {
-                Navigator.push(context, CupertinoPageRoute(builder: (context) {
-                  return AddTestToPatientScreen(
-                    patientID: snapshot.data!.patient.id,
-                  );
-                }));
-              },
-              icon: SvgPicture.asset(
-                "assets/images/note_add.svg",
-                width: 20,
-                color: Colors.white,
-              ),
-              label: const Text(
-                "Add New Test",
-                style: TextStyle(),
-              ),
-            ),
-            appBar: AppBar(
-              backgroundColor: Colors.blueAccent,
-              foregroundColor: Colors.white,
-              centerTitle: true,
-              title: Text(
-                "${snapshot.data!.patient.firstName} ${snapshot.data!.patient.lastName}"
-                    .toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 18,
+              floatingActionButton: Padding(
+                padding: const EdgeInsets.only(left: 25.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    FloatingActionButton.extended(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blueAccent,
+                      onPressed: () {
+                        Navigator.push(context,
+                            CupertinoPageRoute(builder: (context) {
+                          return AddTestToPatientScreen(
+                            patientID: snapshot.data!.patient.id,
+                          );
+                        }));
+                      },
+                      icon: SvgPicture.asset(
+                        "assets/images/note_add.svg",
+                        width: 20,
+                        color: Colors.white,
+                      ),
+                      label: const Text(
+                        "Add New Test",
+                        style: TextStyle(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 15),
-                  child: PopupMenuButton(
-                    surfaceTintColor: Colors.transparent,
-                    child: SvgPicture.asset(
-                      "assets/images/more_vert.svg",
-                      width: 35,
-                      color: Colors.white,
-                    ),
-                    itemBuilder: (context) {
-                      return [
-                        PopupMenuItem(
-                          onTap: () {
-                            Navigator.push(context,
-                                CupertinoPageRoute(builder: (context) {
-                              return UpdatePatientProfileScreen(
-                                patient: snapshot.data!.patient,
-                              );
-                            }));
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                "assets/images/person_edit.svg",
-                                width: 20,
-                              ),
-                              const SizedBox(width: 10),
-                              const Text(
-                                "Update Patient Profile",
-                                style: TextStyle(),
-                              ),
-                            ],
+              appBar: AppBar(
+                backgroundColor: Colors.blueAccent,
+                foregroundColor: Colors.white,
+                centerTitle: true,
+                title: Text(
+                  "${snapshot.data!.patient.firstName} ${snapshot.data!.patient.lastName}"
+                      .toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 18,
+                  ),
+                ),
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 15),
+                    child: PopupMenuButton(
+                      surfaceTintColor: Colors.transparent,
+                      child: SvgPicture.asset(
+                        "assets/images/more_vert.svg",
+                        width: 35,
+                        color: Colors.white,
+                      ),
+                      itemBuilder: (context) {
+                        return [
+                          PopupMenuItem(
+                            onTap: () {
+                              Navigator.push(context,
+                                  CupertinoPageRoute(builder: (context) {
+                                return UpdatePatientProfileScreen(
+                                  patient: snapshot.data!.patient,
+                                );
+                              }));
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  "assets/images/person_edit.svg",
+                                  width: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                const Text(
+                                  "Update Patient Profile",
+                                  style: TextStyle(),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        PopupMenuItem(
-                          onTap: () {
-                            Navigator.push(context,
-                                CupertinoPageRoute(builder: (context) {
-                              return AddTestToPatientScreen(
-                                patientID: snapshot.data!.patient.id,
-                              );
-                            }));
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                "assets/images/note_add.svg",
-                                width: 20,
-                              ),
-                              const SizedBox(width: 10),
-                              const Text(
-                                "Add Test to Patient",
-                                style: TextStyle(),
-                              ),
-                            ],
+                          PopupMenuItem(
+                            onTap: () {
+                              Navigator.push(context,
+                                  CupertinoPageRoute(builder: (context) {
+                                return AddTestToPatientScreen(
+                                  patientID: snapshot.data!.patient.id,
+                                );
+                              }));
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  "assets/images/note_add.svg",
+                                  width: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                const Text(
+                                  "Add Test to Patient",
+                                  style: TextStyle(),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const PopupMenuItem(child: PopupMenuDivider()),
-                        PopupMenuItem(
-                          onTap: () {},
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                "assets/images/person_remove.svg",
-                                width: 20,
-                                color: Colors.redAccent,
-                              ),
-                              const SizedBox(width: 10),
-                              const Text(
-                                "Delete Patient Profile",
-                                style: TextStyle(
+                          const PopupMenuItem(child: PopupMenuDivider()),
+                          PopupMenuItem(
+                            onTap: () {},
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  "assets/images/person_remove.svg",
+                                  width: 20,
                                   color: Colors.redAccent,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 10),
+                                const Text(
+                                  "Delete Patient Profile",
+                                  style: TextStyle(
+                                    color: Colors.redAccent,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ];
-                    },
+                        ];
+                      },
+                    ),
                   ),
+                ],
+              ),
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  _patientDetailsManager.getPatientAndTests(widget.patientID);
+                },
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
+                  children: [
+                    PatientProfileCard(patient: snapshot.data!.patient),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Test Records',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 18.0),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(context,
+                                  CupertinoPageRoute(builder: (context) {
+                                return AddTestToPatientScreen(
+                                  patientID: snapshot.data!.patient.id,
+                                );
+                              }));
+                            },
+                            icon: const Icon(Icons.add),
+                          ),
+                        ],
+                      ),
+                    ),
+                    snapshot.data!.tests.isEmpty
+                        ? const Center(
+                            child: Text("No tests recorded!!"),
+                          )
+                        : ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: snapshot.data!.tests.length,
+                            itemBuilder: (context, index) {
+                              return SingleTestCard(
+                                test: snapshot.data!.tests[index],
+                                isLatestTest: index == 0,
+                              );
+                            },
+                          ),
+                  ],
                 ),
-              ],
-            ),
-            body: ListView(
-              padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
-              children: [
-                PatientProfileCard(patient: snapshot.data!.patient),
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Test Records',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18.0),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(context,
-                              CupertinoPageRoute(builder: (context) {
-                            return AddTestToPatientScreen(
-                              patientID: snapshot.data!.patient.id,
-                            );
-                          }));
-                        },
-                        icon: const Icon(Icons.add),
-                      ),
-                    ],
-                  ),
-                ),
-                snapshot.data!.tests.isEmpty
-                    ? const Center(
-                        child: Text("No tests recorded!!"),
-                      )
-                    : ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: snapshot.data!.tests.length,
-                        itemBuilder: (context, index) {
-                          return SingleTestCard(
-                            test: snapshot.data!.tests[index],
-                            isLatestTest: index == 0,
-                          );
-                        },
-                      ),
-              ],
-            ),
-          );
+              ));
         } else {
           return const Scaffold(
             body: Center(

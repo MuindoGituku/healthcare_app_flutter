@@ -146,8 +146,7 @@ class PatientsDatabaseManager {
 
 // delete a test
   Future<void> deleteTest(String patientID, String testID) async {
-    final result =
-        await _apiService.deleteRequest('patients/$patientID/tests/$testID');
+    final result = await _apiService.deleteRequest('tests/$testID');
 
     if (result.isSuccess) {
       // Fetch updated tests after deletion
