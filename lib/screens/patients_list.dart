@@ -35,6 +35,14 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
     super.dispose();
   }
 
+  Future<void> _fetchPatients(String filter) async {
+    if (filter == "All Patients") {
+      await _databaseManager.fetchAllPatients();
+    } else if (filter == "Critical Condition") {
+      await _databaseManager.getAllCriticalPatients();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -110,8 +118,12 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
                           radioActiveColor: Colors.blueAccent,
                           radioInactiveColor: Colors.transparent,
                           isRadioSelected: selectedFilter == "All Patients",
-                          onTapRadio: () =>
-                              setState(() => selectedFilter == "All Patients"),
+                          onTapRadio: () async {
+                            setState(() {
+                              selectedFilter = "All Patients";
+                            });
+                            await _fetchPatients(selectedFilter);
+                          },
                         ),
                         const SizedBox(width: 15),
                         CustomRadioButton(
@@ -121,8 +133,12 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
                           radioInactiveColor: Colors.transparent,
                           isRadioSelected:
                               selectedFilter == "Critical Condition",
-                          onTapRadio: () => setState(
-                              () => selectedFilter == "Critical Condition"),
+                          onTapRadio: () async {
+                            setState(() {
+                              selectedFilter = "Critical Condition";
+                            });
+                            await _fetchPatients(selectedFilter);
+                          },
                         ),
                       ],
                     ),
