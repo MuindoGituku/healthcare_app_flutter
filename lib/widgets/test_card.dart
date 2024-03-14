@@ -58,91 +58,55 @@ class SingleTestCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                isLatestTest
-                    ? ElevatedButton.icon(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.blueAccent,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        icon: SvgPicture.asset(
-                          "assets/images/edit_note.svg",
-                          width: 20,
-                          color: Colors.white,
-                        ),
-                        label: const Text(
-                          "Update Test",
-                          style: TextStyle(),
-                        ),
-                      )
-                    : OutlinedButton.icon(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.blueAccent,
-                          side: const BorderSide(color: Colors.blueAccent),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(color: Colors.blueAccent),
-                          ),
-                        ),
-                        icon: SvgPicture.asset(
-                          "assets/images/edit_note.svg",
-                          width: 20,
-                          color: Colors.blueAccent,
-                        ),
-                        label: const Text(
-                          "Update Test",
-                          style: TextStyle(),
+                if (isLatestTest)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        // Navigate to update test screen
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blueAccent,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
                         ),
                       ),
-                !isLatestTest
-                    ? ElevatedButton.icon(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.redAccent,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        icon: SvgPicture.asset(
-                          "assets/images/scan_delete.svg",
-                          width: 20,
-                          color: Colors.white,
-                        ),
-                        label: const Text(
-                          "Delete Test",
-                          style: TextStyle(),
-                        ),
-                      )
-                    : OutlinedButton.icon(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.redAccent,
-                          elevation: 0,
-                          side: const BorderSide(color: Colors.redAccent),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        icon: SvgPicture.asset(
-                          "assets/images/scan_delete.svg",
-                          width: 20,
-                          color: Colors.redAccent,
-                        ),
-                        label: const Text(
-                          "Delete Test",
-                          style: TextStyle(),
-                        ),
-                      )
+                      icon: SvgPicture.asset(
+                        "assets/images/edit_note.svg",
+                        width: 20,
+                        color: Colors.white,
+                      ),
+                      label: const Text(
+                        "Update Test",
+                        style: TextStyle(),
+                      ),
+                    ),
+                  ),
+                if (!isLatestTest)
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.redAccent,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                    icon: SvgPicture.asset(
+                      "assets/images/scan_delete.svg",
+                      width: 20,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      "Delete Test",
+                      style: TextStyle(),
+                    ),
+                  ),
               ],
             )
           ],

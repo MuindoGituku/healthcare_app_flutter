@@ -66,4 +66,21 @@ class ApiService {
       return Result.failure(e.toString());
     }
   }
+
+  Future<Result<dynamic>> deleteRequest(String endpoint) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$_baseUrl/$endpoint'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      if (response.statusCode == 200) {
+        return Result.success(jsonDecode(response.body));
+      }
+      return Result.failure('Failed to delete data from $endpoint');
+    } catch (e) {
+      return Result.failure(e.toString());
+    }
+  }
 }
