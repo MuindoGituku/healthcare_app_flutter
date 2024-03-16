@@ -52,33 +52,25 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
           );
         } else if (snapshot.hasData) {
           return Scaffold(
-              floatingActionButton: Padding(
-                padding: const EdgeInsets.only(left: 25.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    FloatingActionButton.extended(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.blueAccent,
-                      onPressed: () {
-                        Navigator.push(context,
-                            CupertinoPageRoute(builder: (context) {
-                          return AddTestToPatientScreen(
-                            patientID: snapshot.data!.patient.id,
-                          );
-                        }));
-                      },
-                      icon: SvgPicture.asset(
-                        "assets/images/note_add.svg",
-                        width: 20,
-                        color: Colors.white,
-                      ),
-                      label: const Text(
-                        "Add New Test",
-                        style: TextStyle(),
-                      ),
-                    ),
-                  ],
+              floatingActionButton: FloatingActionButton.extended(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.blueAccent,
+                onPressed: () {
+                  Navigator.push(context,
+                      CupertinoPageRoute(builder: (context) {
+                    return AddTestToPatientScreen(
+                      patientID: snapshot.data!.patient.id,
+                    );
+                  }));
+                },
+                icon: SvgPicture.asset(
+                  "assets/images/note_add.svg",
+                  width: 20,
+                  color: Colors.white,
+                ),
+                label: const Text(
+                  "Add New Test",
+                  style: TextStyle(),
                 ),
               ),
               appBar: AppBar(
