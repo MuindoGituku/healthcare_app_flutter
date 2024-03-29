@@ -1,6 +1,8 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/models/patient.dart';
+import 'package:healthcare_app_flutter/services/database_manager.dart';
+import 'package:intl/intl.dart';
 import 'package:svg_flutter/svg.dart';
 
 class UpdatePatientProfileScreen extends StatefulWidget {
@@ -16,13 +18,34 @@ class UpdatePatientProfileScreen extends StatefulWidget {
 class _UpdatePatientProfileScreenState
     extends State<UpdatePatientProfileScreen> {
   final _formKey = GlobalKey<FormState>();
+  final PatientsDatabaseManager _databaseManager = PatientsDatabaseManager();
 
-  String firstName = "";
-  String lastName = "";
-  String homeAddress = "";
+  TextEditingController firstName = TextEditingController();
+  TextEditingController lastName = TextEditingController();
+  TextEditingController homeAddress = TextEditingController();
   DateTime dateOfBirth = DateTime.now();
+  TextEditingController dateOfBirthText = TextEditingController();
   String selectedDoctor = "";
   String selectedDepartment = "";
+
+  Future pickDate({required BuildContext context}) async {
+    DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: dateOfBirth,
+      firstDate: DateTime(1900, 1),
+      lastDate: DateTime.now(),
+      initialDatePickerMode: DatePickerMode.year,
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+    );
+
+    if (selectedDate == null) return;
+    setState(() {
+      dateOfBirth = selectedDate;
+      dateOfBirthText.text = DateFormat.yMMMEd().format(selectedDate);
+    });
+  }
+
+  bool isUploadingPatient = false;
 
   List<String> doctorOptions = [
     'Megan Garner',
@@ -45,8 +68,13 @@ class _UpdatePatientProfileScreenState
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    firstName.text = widget.patient.firstName;
+    lastName.text = widget.patient.lastName;
+    homeAddress.text = widget.patient.address;
+    dateOfBirthText.text = widget.patient.dateOfBirth;
+    selectedDoctor = widget.patient.doctor;
+    selectedDepartment = widget.patient.department;
   }
 
   @override
@@ -77,10 +105,7 @@ class _UpdatePatientProfileScreenState
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.45,
                     child: TextFormField(
-                      initialValue: firstName,
-                      onChanged: (value) {
-                        setState(() => firstName = value);
-                      },
+                      controller: firstName,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Enter your first name!!";
@@ -102,10 +127,7 @@ class _UpdatePatientProfileScreenState
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.45,
                     child: TextFormField(
-                      initialValue: lastName,
-                      onChanged: (value) {
-                        setState(() => lastName = value);
-                      },
+                      controller: lastName,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Enter your last name!!";
@@ -128,10 +150,7 @@ class _UpdatePatientProfileScreenState
               ),
               const SizedBox(height: 20),
               TextFormField(
-                initialValue: homeAddress,
-                onChanged: (value) {
-                  setState(() => homeAddress = value);
-                },
+                controller: homeAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Enter your home address!!";
@@ -151,9 +170,9 @@ class _UpdatePatientProfileScreenState
               ),
               const SizedBox(height: 20),
               GestureDetector(
-                onTap: () {},
+                onTap: () => pickDate(context: context),
                 child: TextFormField(
-                  initialValue: homeAddress,
+                  controller: dateOfBirthText,
                   enabled: false,
                   style: const TextStyle(
                     fontSize: 12,
@@ -174,6 +193,9 @@ class _UpdatePatientProfileScreenState
               DropdownSearch(
                 items: doctorOptions,
                 selectedItem: selectedDoctor,
+                onChanged: (value) => setState(() {
+                  selectedDoctor = value!;
+                }),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Select the attending doctor!!";
@@ -193,6 +215,9 @@ class _UpdatePatientProfileScreenState
               DropdownSearch(
                 items: departmentOptions,
                 selectedItem: selectedDepartment,
+                onChanged: (value) => setState(() {
+                  selectedDepartment = value!;
+                }),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Select the receiving department!!";
@@ -210,8 +235,22 @@ class _UpdatePatientProfileScreenState
               ),
               const SizedBox(height: 25),
               GestureDetector(
-                onTap: () {
-                  if (_formKey.currentState!.validate()) {}
+                onTap: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final updatedPatient = Patient(
+                      id: widget.patient.id,
+                      firstName: firstName.text,
+                      lastName: lastName.text,
+                      address: homeAddress.text,
+                      dateOfBirth: dateOfBirthText.text,
+                      department: selectedDepartment,
+                      doctor: selectedDoctor,
+                      status: widget.patient.status,
+                    );
+                    await _databaseManager
+                        .updatePatient(updatedPatient)
+                        .then((value) => Navigator.pop(context));
+                  }
                 },
                 child: Container(
                   decoration: BoxDecoration(

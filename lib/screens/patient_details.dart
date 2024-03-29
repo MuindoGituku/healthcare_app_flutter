@@ -4,6 +4,7 @@ import 'package:healthcare_app_flutter/forms/add_test.dart';
 import 'package:healthcare_app_flutter/forms/update_patient.dart';
 import 'package:healthcare_app_flutter/services/database_manager.dart';
 import 'package:healthcare_app_flutter/services/patient_details_tests_manager.dart';
+import 'package:healthcare_app_flutter/widgets/empty_state.dart';
 import 'package:healthcare_app_flutter/widgets/error_screen.dart';
 import 'package:healthcare_app_flutter/widgets/loading_screen.dart';
 import 'package:healthcare_app_flutter/widgets/patient_profile_card.dart';
@@ -209,9 +210,9 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                       ),
                     ),
                     snapshot.data!.tests.isEmpty
-                        ? const Center(
-                            child: Text("No tests recorded!!"),
-                          )
+                        ? EmptyStateScreen(
+                            emptySateMessage:
+                                "There are not tests in the database recorded for ${snapshot.data!.patient.firstName} ${snapshot.data!.patient.lastName}!!")
                         : ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,

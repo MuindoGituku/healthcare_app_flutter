@@ -1,6 +1,8 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/models/test.dart';
+import 'package:healthcare_app_flutter/services/database_manager.dart';
+import 'package:intl/intl.dart';
 import 'package:svg_flutter/svg.dart';
 
 class UpdateTestScreen extends StatefulWidget {
@@ -14,12 +16,33 @@ class UpdateTestScreen extends StatefulWidget {
 
 class _UpdateTestScreenState extends State<UpdateTestScreen> {
   final _formKey = GlobalKey<FormState>();
+  final PatientsDatabaseManager _databaseManager = PatientsDatabaseManager();
 
-  String nurseName = "";
-  String testReading = "";
+  TextEditingController nurseName = TextEditingController();
+  TextEditingController testReading = TextEditingController();
+  TextEditingController selectedTestDate = TextEditingController();
   DateTime testDate = DateTime.now();
   String selectedType = "";
   String selectedCategory = "";
+
+  bool isUploadingPatient = false;
+
+  Future pickDate({required BuildContext context}) async {
+    DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: testDate,
+      firstDate: DateTime(1900, 1),
+      lastDate: DateTime.now(),
+      initialDatePickerMode: DatePickerMode.year,
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+    );
+
+    if (selectedDate == null) return;
+    setState(() {
+      testDate = selectedDate;
+      selectedTestDate.text = DateFormat.yMMMEd().format(selectedDate);
+    });
+  }
 
   List<String> typeOptions = [
     'Test',
@@ -30,6 +53,17 @@ class _UpdateTestScreenState extends State<UpdateTestScreen> {
     "Respiratory Rate",
     "Heart Beat Rate",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    nurseName.text = widget.test.nurseName;
+    testReading.text = widget.test.readings;
+    selectedTestDate.text = widget.test.date;
+    selectedType = widget.test.type;
+    selectedCategory = widget.test.category;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,10 +88,7 @@ class _UpdateTestScreenState extends State<UpdateTestScreen> {
           child: Column(
             children: [
               TextFormField(
-                initialValue: nurseName,
-                onChanged: (value) {
-                  setState(() => nurseName = value);
-                },
+                controller: nurseName,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Enter the name of the attending nurse!!";
@@ -77,9 +108,9 @@ class _UpdateTestScreenState extends State<UpdateTestScreen> {
               ),
               const SizedBox(height: 20),
               GestureDetector(
-                onTap: () {},
+                onTap: () => pickDate(context: context),
                 child: TextFormField(
-                  initialValue: nurseName,
+                  controller: selectedTestDate,
                   enabled: false,
                   style: const TextStyle(
                     fontSize: 12,
@@ -136,10 +167,7 @@ class _UpdateTestScreenState extends State<UpdateTestScreen> {
               ),
               const SizedBox(height: 25),
               TextFormField(
-                initialValue: testReading,
-                onChanged: (value) {
-                  setState(() => testReading = value);
-                },
+                controller: testReading,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Enter the reading from the test!!";
@@ -159,8 +187,21 @@ class _UpdateTestScreenState extends State<UpdateTestScreen> {
               ),
               const SizedBox(height: 25),
               GestureDetector(
-                onTap: () {
-                  if (_formKey.currentState!.validate()) {}
+                onTap: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final updatedTest = Test(
+                      id: widget.test.id,
+                      patientID: widget.test.patientID,
+                      date: selectedTestDate.text,
+                      nurseName: nurseName.text,
+                      type: selectedType,
+                      category: selectedCategory,
+                      readings: testReading.text,
+                    );
+                    await _databaseManager
+                        .updateTest(updatedTest)
+                        .then((value) => Navigator.pop(context));
+                  }
                 },
                 child: Container(
                   decoration: BoxDecoration(
