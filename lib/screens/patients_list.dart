@@ -12,7 +12,7 @@ import 'package:healthcare_app_flutter/widgets/patient_card.dart';
 import 'package:svg_flutter/svg.dart';
 
 class PatientsListScreen extends StatefulWidget {
-  const PatientsListScreen({super.key});
+  const PatientsListScreen({Key? key}) : super(key: key);
 
   @override
   State<PatientsListScreen> createState() => _PatientsListScreenState();
@@ -102,7 +102,10 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
             );
           } else if (snapshot.hasData) {
             return RefreshIndicator(
-              onRefresh: () async => await _databaseManager.fetchAllPatients(),
+              onRefresh: () async {
+                await _fetchPatients(selectedFilter);
+                setState(() {});
+              },
               child: ListView(
                 children: [
                   SizedBox(
@@ -147,34 +150,36 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
                       ? const EmptyStateScreen(
                           emptySateMessage:
                               "There are no patients ecorded in our database at the moment. You can upload a patient from the button below")
-                      : ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                            final patient = snapshot.data![index];
-
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                              child: CustomPatientCard(
-                                iscritical: patient.status == "Critical",
-                                patientName:
-                                    "${patient.firstName} ${patient.lastName}",
-                                doctorName: patient.doctor,
-                                department: patient.department,
-                                onTapPatientCard: () {
-                                  Navigator.push(context,
-                                      CupertinoPageRoute(builder: (context) {
-                                    return PatientRecordsScreen(
-                                      patientID: patient.id,
-                                    );
-                                  }));
-                                },
-                              ),
-                            );
-                          },
-                        )
+                      : Padding(
+                          padding: const EdgeInsets.only(bottom: 80),
+                          child: ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
+                              final patient = snapshot.data![index];
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                                child: CustomPatientCard(
+                                  iscritical: patient.status == "Critical",
+                                  patientName:
+                                      "${patient.firstName} ${patient.lastName}",
+                                  doctorName: patient.doctor,
+                                  department: patient.department,
+                                  onTapPatientCard: () {
+                                    Navigator.push(context,
+                                        CupertinoPageRoute(builder: (context) {
+                                      return PatientRecordsScreen(
+                                        patientID: patient.id,
+                                      );
+                                    }));
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                 ],
               ),
             );
