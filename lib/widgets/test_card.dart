@@ -91,8 +91,12 @@ class SingleTestCard extends StatelessWidget {
                 ElevatedButton(
                   onPressed: !isLatestTest
                       ? () async {
-                          await PatientsDatabaseManager()
-                              .deleteTest(test.patientID, test.id);
+                          bool confirmDelete =
+                              await _showDeleteConfirmationDialog(context);
+                          if (confirmDelete) {
+                            await PatientsDatabaseManager()
+                                .deleteTest(test.patientID, test.id);
+                          }
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
@@ -112,6 +116,30 @@ class SingleTestCard extends StatelessWidget {
             )
           ],
         ),
+      ),
+    );
+  }
+
+  Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Confirm Delete"),
+        content: Text("Are you sure you want to delete this test?"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text("Delete"),
+          ),
+        ],
       ),
     );
   }
