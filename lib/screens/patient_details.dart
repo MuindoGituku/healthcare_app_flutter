@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:healthcare_app_flutter/forms/add_test.dart';
@@ -151,7 +153,10 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                           ),
                           const PopupMenuItem(child: PopupMenuDivider()),
                           PopupMenuItem(
-                            onTap: () {},
+                            onTap: () {
+                              _showDeleteConfirmationDialog(
+                                  context, snapshot.data!.patient.id);
+                            },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -163,7 +168,7 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                                 ),
                                 const SizedBox(width: 10),
                                 const Text(
-                                  "Delete Patient Profile",
+                                  "Delete Patient",
                                   style: TextStyle(
                                     color: Colors.redAccent,
                                   ),
@@ -239,4 +244,30 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
       },
     );
   }
+}
+
+void _showDeleteConfirmationDialog(BuildContext context, String patientID) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Confirm Delete"),
+      content: const Text("Are you sure you want to delete this patient?"),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text("Cancel"),
+        ),
+        TextButton(
+          onPressed: () async {
+            await PatientsDatabaseManager().deletePatient(patientID);
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          },
+          child: const Text("Delete"),
+        ),
+      ],
+    ),
+  );
 }

@@ -124,20 +124,20 @@ class SingleTestCard extends StatelessWidget {
     return await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Confirm Delete"),
-        content: Text("Are you sure you want to delete this test?"),
+        title: const Text("Confirm Delete"),
+        content: const Text("Are you sure you want to delete this test?"),
         actions: <Widget>[
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(false);
             },
-            child: Text("Cancel"),
+            child: const Text("Cancel"),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(true);
             },
-            child: Text("Delete"),
+            child: const Text("Delete"),
           ),
         ],
       ),

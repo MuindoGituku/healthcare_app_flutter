@@ -156,6 +156,18 @@ class PatientsDatabaseManager {
     }
   }
 
+  // delete a patient
+  Future<void> deletePatient(String patientID) async {
+    final result = await _apiService.deleteRequest('patients/$patientID');
+
+    if (result.isSuccess) {
+      // Fetch updated tests after deletion
+      await fetchAllPatients();
+    } else {
+      print('Failed to delete patient. Error: ${result.error}');
+    }
+  }
+
   void dispose() {
     _patientsStreamController.close();
     _patientStreamController.close();
