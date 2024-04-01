@@ -1,8 +1,10 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/models/test.dart';
-import 'package:healthcare_app_flutter/services/database_manager.dart';
+import 'package:healthcare_app_flutter/services/patients_provider.dart';
+import 'package:healthcare_app_flutter/widgets/loading_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:svg_flutter/svg.dart';
 
 class AddTestToPatientScreen extends StatefulWidget {
@@ -16,7 +18,6 @@ class AddTestToPatientScreen extends StatefulWidget {
 
 class _AddTestToPatientScreenState extends State<AddTestToPatientScreen> {
   final _formKey = GlobalKey<FormState>();
-  final PatientsDatabaseManager _databaseManager = PatientsDatabaseManager();
 
   TextEditingController nurseName = TextEditingController();
   TextEditingController testReading = TextEditingController();
@@ -187,49 +188,65 @@ class _AddTestToPatientScreenState extends State<AddTestToPatientScreen> {
                 ),
               ),
               const SizedBox(height: 25),
-              GestureDetector(
-                onTap: () async {
-                  if (_formKey.currentState!.validate()) {
-                    final newTest = Test(
-                      patientID: widget.patientID,
-                      date: testDateString.text,
-                      nurseName: nurseName.text,
-                      type: selectedType,
-                      category: selectedCategory,
-                      readings: testReading.text,
-                    );
-                    await _databaseManager
-                        .addTestToPatient(newTest)
-                        .then((value) => Navigator.pop(context));
-                  }
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(17),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          "assets/images/cloud_upload.svg",
-                          width: 20,
-                          height: 20,
-                          color: Colors.white,
+              isUploadingPatient
+                  ? const LoadingWidget(
+                      loadingAnimationText:
+                          "Uploading new test record to the database...",
+                    )
+                  : GestureDetector(
+                      onTap: () async {
+                        setState(() {
+                          isUploadingPatient = true;
+                        });
+
+                        if (_formKey.currentState!.validate()) {
+                          final newTest = Test(
+                            patientID: widget.patientID,
+                            date: testDateString.text,
+                            nurseName: nurseName.text,
+                            type: selectedType,
+                            category: selectedCategory,
+                            readings: testReading.text,
+                          );
+
+                          await Provider.of<PatientsProvider>(context,
+                                  listen: false)
+                              .addNewTest(newTest)
+                              .then((value) => isUploadingPatient = false)
+                              .then((value) => Navigator.pop(context));
+                        } else {
+                          setState(() {
+                            isUploadingPatient = false;
+                          });
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        const SizedBox(width: 10),
-                        const Text(
-                          "Upload New Test",
-                          style: TextStyle(color: Colors.white),
+                        child: Padding(
+                          padding: const EdgeInsets.all(17),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                "assets/images/cloud_upload.svg",
+                                width: 20,
+                                height: 20,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                "Upload New Test",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
+                      ),
+                    )
             ],
           ),
         ),

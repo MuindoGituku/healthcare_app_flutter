@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:healthcare_app_flutter/models/patient.dart';
 import 'package:healthcare_app_flutter/models/test.dart';
 import 'package:healthcare_app_flutter/services/api_service.dart';
-import 'package:http/http.dart' as http;
 
 class PatientsDatabaseManager {
-  final String _baseUrl = "https://nodejs-healthcare-api-server.onrender.com";
   final ApiService _apiService = ApiService();
 
   final _patientsStreamController = StreamController<List<Patient>>.broadcast();
@@ -19,13 +16,19 @@ class PatientsDatabaseManager {
   final _testsStreamController = StreamController<List<Test>>.broadcast();
   Stream<List<Test>> get testsStream => _testsStreamController.stream;
 
+  final _testStreamController = StreamController<Test>.broadcast();
+  Stream<Test> get testStream => _testStreamController.stream;
+
   // Fetch all patients and add them to the stream
   Future<void> fetchAllPatients() async {
     final result = await _apiService.getRequest('patients');
 
     if (result.isSuccess) {
-      List<Patient> patients =
-          (result.data as List).map((item) => Patient.fromJson(item)).toList();
+      List<Patient> patients = (result.data as List)
+          .map((item) => Patient.fromJson(item))
+          .toList()
+          .reversed
+          .toList();
       _patientsStreamController.add(patients);
     } else {
       _patientsStreamController.addError(result.error!);
@@ -37,8 +40,11 @@ class PatientsDatabaseManager {
     final result = await _apiService.getRequest('patients/critical');
 
     if (result.isSuccess) {
-      List<Patient> patients =
-          (result.data as List).map((item) => Patient.fromJson(item)).toList();
+      List<Patient> patients = (result.data as List)
+          .map((item) => Patient.fromJson(item))
+          .toList()
+          .reversed
+          .toList();
       _patientsStreamController.add(patients);
     } else {
       _patientsStreamController.addError(result.error!);
@@ -50,8 +56,11 @@ class PatientsDatabaseManager {
     final result = await _apiService.getRequest('patients/search/$searchTerm');
 
     if (result.isSuccess) {
-      List<Patient> patients =
-          (result.data as List).map((item) => Patient.fromJson(item)).toList();
+      List<Patient> patients = (result.data as List)
+          .map((item) => Patient.fromJson(item))
+          .toList()
+          .reversed
+          .toList();
       _patientsStreamController.add(patients);
     } else {
       _patientsStreamController.addError(result.error!);
@@ -96,8 +105,11 @@ class PatientsDatabaseManager {
     final result = await _apiService.getRequest('patients/$id/tests');
     if (result.isSuccess) {
       List<dynamic> body = result.data;
-      List<Test> tests =
-          body.map((dynamic item) => Test.fromJson(item)).toList();
+      List<Test> tests = body
+          .map((dynamic item) => Test.fromJson(item))
+          .toList()
+          .reversed
+          .toList();
       _testsStreamController.add(tests);
     } else {
       print('Error loading tests for patient $id: ${result.error}');
@@ -105,14 +117,14 @@ class PatientsDatabaseManager {
   }
 
   //Fetch test by ID
-  Future<Test> getTestById(String id) async {
-    final response = await http.get(Uri.parse('$_baseUrl/tests/$id'));
+  Future<void> getTestById(String id) async {
+    final result = await _apiService.getRequest('tests/$id');
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> body = jsonDecode(response.body);
-      return Test.fromJson(body);
+    if (result.isSuccess) {
+      Test test = Test.fromJson(result.data);
+      _testStreamController.add(test);
     } else {
-      throw Exception('Failed to load test');
+      _testStreamController.addError(result.error!);
     }
   }
 

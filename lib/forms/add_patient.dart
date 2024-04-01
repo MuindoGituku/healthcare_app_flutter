@@ -1,9 +1,10 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/models/patient.dart';
-import 'package:healthcare_app_flutter/services/database_manager.dart';
+import 'package:healthcare_app_flutter/services/patients_provider.dart';
 import 'package:healthcare_app_flutter/widgets/loading_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:svg_flutter/svg.dart';
 
 class AddNewPatientScreen extends StatefulWidget {
@@ -15,7 +16,6 @@ class AddNewPatientScreen extends StatefulWidget {
 
 class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
   final _formKey = GlobalKey<FormState>();
-  final PatientsDatabaseManager _databaseManager = PatientsDatabaseManager();
 
   TextEditingController firstName = TextEditingController();
   TextEditingController lastName = TextEditingController();
@@ -232,10 +232,14 @@ class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
               isUploadingPatient
                   ? const LoadingWidget(
                       loadingAnimationText:
-                          "Uploading new patient to our hospital records...",
+                          "Uploading new patient record to the database...",
                     )
                   : GestureDetector(
                       onTap: () async {
+                        setState(() {
+                          isUploadingPatient = true;
+                        });
+
                         if (_formKey.currentState!.validate()) {
                           final newPatient = Patient(
                             firstName: firstName.text,
@@ -246,9 +250,15 @@ class _AddNewPatientScreenState extends State<AddNewPatientScreen> {
                             doctor: selectedDoctor,
                             status: "Normal",
                           );
-                          await _databaseManager
-                              .addPatient(newPatient)
+                          await Provider.of<PatientsProvider>(context,
+                                  listen: false)
+                              .addNewPatient(newPatient)
+                              .then((value) => isUploadingPatient = false)
                               .then((value) => Navigator.pop(context));
+                        } else {
+                          setState(() {
+                            isUploadingPatient = false;
+                          });
                         }
                       },
                       child: Container(

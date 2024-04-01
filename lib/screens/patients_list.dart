@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/forms/add_patient.dart';
 import 'package:healthcare_app_flutter/screens/patient_details.dart';
 import 'package:healthcare_app_flutter/screens/patients_search_list.dart';
-import 'package:healthcare_app_flutter/services/database_manager.dart';
+import 'package:healthcare_app_flutter/services/patients_provider.dart';
 import 'package:healthcare_app_flutter/widgets/empty_state.dart';
-import 'package:healthcare_app_flutter/widgets/error_screen.dart';
 import 'package:healthcare_app_flutter/widgets/filter_button.dart';
 import 'package:healthcare_app_flutter/widgets/loading_screen.dart';
 import 'package:healthcare_app_flutter/widgets/patient_card.dart';
+import 'package:provider/provider.dart';
 import 'package:svg_flutter/svg.dart';
 
 class PatientsListScreen extends StatefulWidget {
@@ -22,26 +22,15 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
   var selectedFilter = "All Patients";
   TextEditingController controller = TextEditingController();
 
-  final PatientsDatabaseManager _databaseManager = PatientsDatabaseManager();
-
   @override
   void initState() {
     super.initState();
-    _databaseManager.fetchAllPatients();
+    Provider.of<PatientsProvider>(context, listen: false).fetchAllPatients();
   }
 
   @override
   void dispose() {
-    _databaseManager.dispose();
     super.dispose();
-  }
-
-  Future<void> _fetchPatients(String filter) async {
-    if (filter == "All Patients") {
-      await _databaseManager.fetchAllPatients();
-    } else if (filter == "Critical Condition") {
-      await _databaseManager.getAllCriticalPatients();
-    }
   }
 
   @override
@@ -87,109 +76,113 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
           ),
         ],
       ),
-      body: StreamBuilder(
-        stream: _databaseManager.patientsStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingFullScreen(
-              loadingAnimationText:
-                  "Fetching patients from our database records...",
-            );
-          } else if (snapshot.hasError) {
-            return ErrorFullScreen(
-              errorAnimationText:
-                  '${snapshot.error.toString()} Please try again!',
-            );
-          } else if (snapshot.hasData) {
-            return RefreshIndicator(
-              onRefresh: () async {
-                await _fetchPatients(selectedFilter);
-                setState(() {});
-              },
-              child: ListView(
-                children: [
-                  SizedBox(
-                    height: 63,
-                    child: ListView(
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                      children: [
-                        CustomRadioButton(
-                          radioText: "All Patients",
-                          textColor: Colors.black,
-                          radioActiveColor: Colors.blueAccent,
-                          radioInactiveColor: Colors.transparent,
-                          isRadioSelected: selectedFilter == "All Patients",
-                          onTapRadio: () async {
-                            setState(() {
-                              selectedFilter = "All Patients";
-                            });
-                            await _fetchPatients(selectedFilter);
-                          },
-                        ),
-                        const SizedBox(width: 15),
-                        CustomRadioButton(
-                          radioText: "Critical Condition",
-                          textColor: Colors.redAccent,
-                          radioActiveColor: Colors.redAccent,
-                          radioInactiveColor: Colors.transparent,
-                          isRadioSelected:
-                              selectedFilter == "Critical Condition",
-                          onTapRadio: () async {
-                            setState(() {
-                              selectedFilter = "Critical Condition";
-                            });
-                            await _fetchPatients(selectedFilter);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  snapshot.data!.isEmpty
-                      ? const EmptyStateScreen(
-                          emptySateMessage:
-                              "There are no patients ecorded in our database at the moment. You can upload a patient from the button below")
-                      : Padding(
-                          padding: const EdgeInsets.only(bottom: 80),
-                          child: ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (context, index) {
-                              final patient = snapshot.data![index];
-                              return Padding(
+      body: FutureBuilder(
+        future: selectedFilter == "All Patients"
+            ? Provider.of<PatientsProvider>(context, listen: false)
+                .fetchAllPatients()
+            : Provider.of<PatientsProvider>(context, listen: false)
+                .fetchCriticalPatients(),
+        builder: (context, snapshot) => snapshot.connectionState ==
+                ConnectionState.waiting
+            ? LoadingFullScreen(
+                loadingAnimationText: selectedFilter == "All Patients"
+                    ? "Fetching patients from our database records..."
+                    : "Fetching critical patients from our database records...",
+              )
+            : Consumer<PatientsProvider>(
+                child: const EmptyStateScreen(
+                  emptySateMessage:
+                      "Fetching patients from our database records...",
+                ),
+                builder: (context, patientsProvider, child) => patientsProvider
+                        .patients.isEmpty
+                    ? child!
+                    : RefreshIndicator(
+                        onRefresh: () async {
+                          selectedFilter == "All Patients"
+                              ? await Provider.of<PatientsProvider>(context,
+                                      listen: false)
+                                  .fetchAllPatients()
+                              : await Provider.of<PatientsProvider>(context,
+                                      listen: false)
+                                  .fetchCriticalPatients();
+                        },
+                        child: ListView(
+                          children: [
+                            SizedBox(
+                              height: 63,
+                              child: ListView(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
                                 padding:
                                     const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                                child: CustomPatientCard(
-                                  iscritical: patient.status == "Critical",
-                                  patientName:
-                                      "${patient.firstName} ${patient.lastName}",
-                                  doctorName: patient.doctor,
-                                  department: patient.department,
-                                  onTapPatientCard: () {
-                                    Navigator.push(context,
-                                        CupertinoPageRoute(builder: (context) {
-                                      return PatientRecordsScreen(
-                                        patientID: patient.id,
-                                      );
-                                    }));
-                                  },
-                                ),
-                              );
-                            },
-                          ),
+                                children: [
+                                  CustomRadioButton(
+                                    radioText: "All Patients",
+                                    textColor: Colors.black,
+                                    radioActiveColor: Colors.blueAccent,
+                                    radioInactiveColor: Colors.transparent,
+                                    isRadioSelected:
+                                        selectedFilter == "All Patients",
+                                    onTapRadio: () async {
+                                      setState(() {
+                                        selectedFilter = "All Patients";
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(width: 15),
+                                  CustomRadioButton(
+                                    radioText: "Critical Condition",
+                                    textColor: Colors.redAccent,
+                                    radioActiveColor: Colors.redAccent,
+                                    radioInactiveColor: Colors.transparent,
+                                    isRadioSelected:
+                                        selectedFilter == "Critical Condition",
+                                    onTapRadio: () async {
+                                      setState(() {
+                                        selectedFilter = "Critical Condition";
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 80),
+                              child: ListView.builder(
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: patientsProvider.patients.length,
+                                itemBuilder: (context, index) {
+                                  final patient =
+                                      patientsProvider.patients[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        15, 10, 15, 10),
+                                    child: CustomPatientCard(
+                                      iscritical: patient.status == "Critical",
+                                      patientName:
+                                          "${patient.firstName} ${patient.lastName}",
+                                      doctorName: patient.doctor,
+                                      department: patient.department,
+                                      onTapPatientCard: () {
+                                        Navigator.push(context,
+                                            CupertinoPageRoute(
+                                                builder: (context) {
+                                          return PatientRecordsScreen(
+                                            patientID: patient.id,
+                                          );
+                                        }));
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                ],
+                      ),
               ),
-            );
-          } else {
-            return const ErrorFullScreen(
-              errorAnimationText:
-                  'No patients data has been found in our archives. Please try again!',
-            );
-          }
-        },
       ),
     );
   }

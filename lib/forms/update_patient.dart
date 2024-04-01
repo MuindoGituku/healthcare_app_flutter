@@ -1,8 +1,9 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/models/patient.dart';
-import 'package:healthcare_app_flutter/services/database_manager.dart';
+import 'package:healthcare_app_flutter/services/patients_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:svg_flutter/svg.dart';
 
 class UpdatePatientProfileScreen extends StatefulWidget {
@@ -18,7 +19,6 @@ class UpdatePatientProfileScreen extends StatefulWidget {
 class _UpdatePatientProfileScreenState
     extends State<UpdatePatientProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final PatientsDatabaseManager _databaseManager = PatientsDatabaseManager();
 
   TextEditingController firstName = TextEditingController();
   TextEditingController lastName = TextEditingController();
@@ -236,6 +236,10 @@ class _UpdatePatientProfileScreenState
               const SizedBox(height: 25),
               GestureDetector(
                 onTap: () async {
+                  setState(() {
+                    isUploadingPatient = true;
+                  });
+
                   if (_formKey.currentState!.validate()) {
                     final updatedPatient = Patient(
                       id: widget.patient.id,
@@ -247,9 +251,14 @@ class _UpdatePatientProfileScreenState
                       doctor: selectedDoctor,
                       status: widget.patient.status,
                     );
-                    await _databaseManager
-                        .updatePatient(updatedPatient)
+                    await Provider.of<PatientsProvider>(context, listen: false)
+                        .updateSelectedPatient(updatedPatient)
+                        .then((value) => isUploadingPatient = false)
                         .then((value) => Navigator.pop(context));
+                  } else {
+                    setState(() {
+                      isUploadingPatient = false;
+                    });
                   }
                 },
                 child: Container(

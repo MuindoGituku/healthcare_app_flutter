@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/forms/update_test.dart';
 import 'package:healthcare_app_flutter/models/test.dart';
-import 'package:healthcare_app_flutter/services/database_manager.dart';
-import 'package:svg_flutter/svg.dart';
+import 'package:healthcare_app_flutter/services/patients_provider.dart';
+import 'package:provider/provider.dart';
 
 class SingleTestCard extends StatelessWidget {
   const SingleTestCard(
@@ -94,8 +96,9 @@ class SingleTestCard extends StatelessWidget {
                           bool confirmDelete =
                               await _showDeleteConfirmationDialog(context);
                           if (confirmDelete) {
-                            await PatientsDatabaseManager()
-                                .deleteTest(test.patientID, test.id);
+                            await Provider.of<PatientsProvider>(context,
+                                    listen: false)
+                                .deleteCurrentTest(test.patientID, test.id);
                           }
                         }
                       : null,
@@ -123,24 +126,43 @@ class SingleTestCard extends StatelessWidget {
   Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
     return await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Confirm Delete"),
-        content: const Text("Are you sure you want to delete this test?"),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: const Text("Delete"),
-          ),
-        ],
-      ),
+      builder: (context) => Platform.isIOS
+          ? CupertinoAlertDialog(
+              title: const Text("Confirm Delete"),
+              content: const Text("Are you sure you want to delete this test?"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text("Delete"),
+                ),
+              ],
+            )
+          : AlertDialog(
+              title: const Text("Confirm Delete"),
+              content: const Text("Are you sure you want to delete this test?"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text("Delete"),
+                ),
+              ],
+            ),
     );
   }
 }

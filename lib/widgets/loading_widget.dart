@@ -14,7 +14,7 @@ class LoadingWidget extends StatelessWidget {
         children: [
           Lottie.asset(
             'assets/json/ambulance.json',
-            width: MediaQuery.of(context).size.width * 0.35,
+            width: MediaQuery.of(context).size.width * 0.25,
           ),
           const SizedBox(width: 20),
           SizedBox(

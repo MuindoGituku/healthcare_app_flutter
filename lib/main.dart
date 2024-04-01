@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/screens/patients_list.dart';
+import 'package:healthcare_app_flutter/services/patients_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => PatientsProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

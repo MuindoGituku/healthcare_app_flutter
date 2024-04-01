@@ -5,26 +5,51 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:healthcare_app_flutter/forms/add_patient.dart';
+import 'package:healthcare_app_flutter/forms/update_patient.dart';
+import 'package:healthcare_app_flutter/models/patient.dart';
 
-import 'package:healthcare_app_flutter/main.dart';
+import 'package:healthcare_app_flutter/screens/patients_list.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Add New Patient Button Widget Test',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: AddNewPatientScreen(),
+    ));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Upload New Patient'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('Page Title Widget Test', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: PatientsListScreen(),
+    ));
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Health Care'), findsOneWidget);
+    expect(find.text('Add New Patient'), findsOneWidget);
+  });
+
+  testWidgets('Page Title Widget Test', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: UpdatePatientProfileScreen(
+        patient: Patient(
+          firstName: "firstName",
+          lastName: "lastName",
+          address: "address",
+          dateOfBirth: "dateOfBirth",
+          department: "department",
+          doctor: "doctor",
+          status: "status",
+        ),
+      ),
+    ));
+
+    expect(find.text('Update Patient Details'), findsOneWidget);
+    expect(find.byType(DropdownSearch<String>).hitTestable(), findsWidgets);
+    expect(find.byType(TextFormField).hitTestable(), findsWidgets);
   });
 }
