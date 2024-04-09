@@ -12,6 +12,7 @@ import 'package:healthcare_app_flutter/widgets/empty_state.dart';
 import 'package:healthcare_app_flutter/widgets/error_screen.dart';
 import 'package:healthcare_app_flutter/widgets/loading_screen.dart';
 import 'package:healthcare_app_flutter/widgets/patient_profile_card.dart';
+import 'package:healthcare_app_flutter/widgets/snack_bar.dart';
 import 'package:healthcare_app_flutter/widgets/test_card.dart';
 import 'package:provider/provider.dart';
 import 'package:svg_flutter/svg.dart';
@@ -172,8 +173,14 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                                       child: PopupMenuDivider()),
                                   PopupMenuItem(
                                     onTap: () {
-                                      _showDeleteConfirmationDialog(context,
-                                          patientProvider.currentPatient!.id);
+                                      _showDeleteConfirmationDialog(
+                                        context,
+                                        patientProvider.currentPatient!.id,
+                                        patientProvider
+                                            .currentPatient!.firstName,
+                                        patientProvider
+                                            .currentPatient!.lastName,
+                                      );
                                     },
                                     child: Row(
                                       mainAxisAlignment:
@@ -270,7 +277,8 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
   }
 }
 
-void _showDeleteConfirmationDialog(BuildContext context, String patientID) {
+void _showDeleteConfirmationDialog(
+    BuildContext context, String patientID, String firstName, String lastName) {
   showDialog(
     context: context,
     builder: (context) => Platform.isIOS
@@ -287,9 +295,17 @@ void _showDeleteConfirmationDialog(BuildContext context, String patientID) {
               ),
               TextButton(
                 onPressed: () async {
-                  await PatientsDatabaseManager().deletePatient(patientID);
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
+                  await Provider.of<PatientsProvider>(context, listen: false)
+                      .deleteCurrentPatient(patientID)
+                      .then(
+                        (value) => showFeedbackSnack(
+                          context,
+                          "Patient data for $firstName $lastName, has been deleted successfully!!",
+                          Colors.green,
+                        ),
+                      )
+                      .then((value) => Navigator.pop(context))
+                      .then((value) => Navigator.pop(context));
                 },
                 child: const Text("Delete"),
               ),
@@ -309,9 +325,16 @@ void _showDeleteConfirmationDialog(BuildContext context, String patientID) {
               TextButton(
                 onPressed: () async {
                   await Provider.of<PatientsProvider>(context, listen: false)
-                      .deleteCurrentPatient(patientID);
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
+                      .deleteCurrentPatient(patientID)
+                      .then(
+                        (value) => showFeedbackSnack(
+                          context,
+                          "Patient data for $firstName $lastName, has been deleted successfully!!",
+                          Colors.green,
+                        ),
+                      )
+                      .then((value) => Navigator.pop(context))
+                      .then((value) => Navigator.pop(context));
                 },
                 child: const Text("Delete"),
               ),

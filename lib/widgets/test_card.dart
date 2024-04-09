@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/forms/update_test.dart';
 import 'package:healthcare_app_flutter/models/test.dart';
 import 'package:healthcare_app_flutter/services/patients_provider.dart';
+import 'package:healthcare_app_flutter/widgets/snack_bar.dart';
 import 'package:provider/provider.dart';
 
 class SingleTestCard extends StatelessWidget {
@@ -98,7 +99,14 @@ class SingleTestCard extends StatelessWidget {
                           if (confirmDelete) {
                             await Provider.of<PatientsProvider>(context,
                                     listen: false)
-                                .deleteCurrentTest(test.patientID, test.id);
+                                .deleteCurrentTest(test.patientID, test.id)
+                                .then(
+                                  (value) => showFeedbackSnack(
+                                    context,
+                                    "Test data for test ${test.category}, has been deleted successfully!!",
+                                    Colors.green,
+                                  ),
+                                );
                           }
                         }
                       : null,

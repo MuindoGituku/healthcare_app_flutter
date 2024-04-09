@@ -2,6 +2,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/models/test.dart';
 import 'package:healthcare_app_flutter/services/patients_provider.dart';
+import 'package:healthcare_app_flutter/widgets/snack_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:svg_flutter/svg.dart';
@@ -205,11 +206,23 @@ class _UpdateTestScreenState extends State<UpdateTestScreen> {
                     await Provider.of<PatientsProvider>(context, listen: false)
                         .updateSelectedTest(updatedTest)
                         .then((value) => isUploadingPatient = false)
+                        .then(
+                          (value) => showFeedbackSnack(
+                            context,
+                            "Test for $selectedCategory, has been updated successfully!!",
+                            Colors.green,
+                          ),
+                        )
                         .then((value) => Navigator.pop(context));
                   } else {
                     setState(() {
                       isUploadingPatient = false;
                     });
+                    showFeedbackSnack(
+                      context,
+                      "There are some errors in your input please check it!!",
+                      Colors.red,
+                    );
                   }
                 },
                 child: Container(

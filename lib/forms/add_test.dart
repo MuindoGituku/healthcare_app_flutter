@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:healthcare_app_flutter/models/test.dart';
 import 'package:healthcare_app_flutter/services/patients_provider.dart';
 import 'package:healthcare_app_flutter/widgets/loading_widget.dart';
+import 'package:healthcare_app_flutter/widgets/snack_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:svg_flutter/svg.dart';
@@ -213,11 +214,23 @@ class _AddTestToPatientScreenState extends State<AddTestToPatientScreen> {
                                   listen: false)
                               .addNewTest(newTest)
                               .then((value) => isUploadingPatient = false)
+                              .then(
+                                (value) => showFeedbackSnack(
+                                  context,
+                                  "New Test, $selectedCategory, has been uploaded successfully!!",
+                                  Colors.green,
+                                ),
+                              )
                               .then((value) => Navigator.pop(context));
                         } else {
                           setState(() {
                             isUploadingPatient = false;
                           });
+                          showFeedbackSnack(
+                            context,
+                            "There are some errors in your input please check it!!",
+                            Colors.red,
+                          );
                         }
                       },
                       child: Container(
