@@ -9,10 +9,9 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:healthcare_app_flutter/forms/add_patient.dart';
+import 'package:healthcare_app_flutter/forms/add_test.dart';
 import 'package:healthcare_app_flutter/forms/update_patient.dart';
 import 'package:healthcare_app_flutter/models/patient.dart';
-
-import 'package:healthcare_app_flutter/screens/patients_list.dart';
 
 void main() {
   testWidgets('Add New Patient Button Widget Test',
@@ -24,16 +23,18 @@ void main() {
     expect(find.text('Upload New Patient'), findsOneWidget);
   });
 
-  testWidgets('Page Title Widget Test', (WidgetTester tester) async {
+  testWidgets('Add Test Page Test', (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(
-      home: PatientsListScreen(),
+      home: AddTestToPatientScreen(
+        patientID: "",
+      ),
     ));
 
-    expect(find.text('Health Care'), findsOneWidget);
-    expect(find.text('Add New Patient'), findsOneWidget);
+    expect(find.byType(DropdownSearch<String>).hitTestable(), findsWidgets);
+    expect(find.byType(TextFormField).hitTestable(), findsWidgets);
   });
 
-  testWidgets('Page Title Widget Test', (WidgetTester tester) async {
+  testWidgets('Page Widgets Test', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       home: UpdatePatientProfileScreen(
         patient: Patient(
